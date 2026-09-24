@@ -1,1 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excel Verbindungstest</title>
+</head>
+<body>
+  <h2>Excel-Verbindungstest</h2>
+  <p id="status">Teste Verbindung...</p>
 
+  <script>
+    async function testen() {
+      const status = document.getElementById("status");
+
+      try {
+        const configAntwort = await fetch("./config.json?zeit=" + Date.now());
+        const config = await configAntwort.json();
+
+        const excelAntwort = await fetch(config.excelUrl);
+
+        if (!excelAntwort.ok) {
+          throw new Error("HTTP " + excelAntwort.status);
+        }
+
+        const daten = await excelAntwort.arrayBuffer();
+
+        status.innerHTML =
+          "✅ Verbindung funktioniert!<br>Excel-Datei empfangen: " +
+          Math.round(daten.byteLength / 1024) + " KB";
+      } catch (fehler) {
+        status.innerHTML =
+          "❌ Verbindung nicht möglich.<br><br>" + fehler;
+      }
+    }
+
+    testen();
+  </script>
+</body>
+</html>
