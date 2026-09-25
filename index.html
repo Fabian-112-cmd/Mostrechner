@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f4f4f4">
 <title>Mostrechner</title>
+<link rel="manifest" href="./manifest.json">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/pakage/dist/xlsx.full.min.js"></script>
   
 <style>
@@ -329,6 +330,12 @@ calc();
 ladeDaten();
 
 </script>
-
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js");
+  });
+}
+</script>
 </body>
 </html>
