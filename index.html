@@ -97,29 +97,17 @@ Berechnung Most / Wein
 
 <script>
 
-let excelUrl = "";
-
-async function ladeExcel() {
+async function ladeDaten() {
   try {
-    const configResponse = await fetch("./config.json", { cache: "no-store" });
-    const config = await configResponse.json();
-    excelUrl = config.excelUrl;
+    const response = await fetch("./daten.json", { cache: "no-store" });
+    const daten = await response.json();
 
-    console.log("Excel-Link geladen:", excelUrl);
+    Object.assign(cfg.doses, daten);
 
-    const response = await fetch(excelUrl, { cache: "no-store" });
-
-    if (!response.ok) {
-      throw new Error("Excel-Download fehlgeschlagen: " + response.status);
-    }
-
-    const data = await response.arrayBuffer();
-    const workbook = XLSX.read(data);
-
-    console.log("Excel erfolgreich geladen:", workbook.SheetNames);
-
+    console.log("Dosierungen geladen:", daten);
+    calc();
   } catch (error) {
-    console.error("Excel konnte nicht geladen werden:", error);
+    console.error("daten.json konnte nicht geladen werden:", error);
   }
 }
 
@@ -248,7 +236,7 @@ function calc(){
 );
 
 calc();
-ladeExcel();
+ladeDaten();
 
 </script>
 
