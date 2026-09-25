@@ -201,6 +201,7 @@ function openSettings() {
         <input class="settingName" type="text" value="${name}">
         <input class="settingValue" type="number" step="any"
                value="${value ?? ""}" placeholder="Dosierung">
+      <span>${name === "Fermoband" ? "kg / 1000 L" : "g / 1000 L"}</span>
       </div>
     `;
   });
