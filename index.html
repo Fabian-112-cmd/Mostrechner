@@ -192,6 +192,14 @@ function card(title,rows){
 }
 
 function openSettings() {
+  
+  const passwort = prompt("Passwort für Einstellungen:");
+
+if (passwort !== "1234") {
+  alert("Falsches Passwort!");
+  return;
+}
+  
   const list = el("settingsList");
   list.innerHTML = "";
 
