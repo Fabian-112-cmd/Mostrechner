@@ -79,6 +79,8 @@ style="padding:10px 18px;font-size:16px;font-weight:600;margin-top:10px;border-r
 style="padding:10px 18px;font-size:16px;margin-top:10px;margin-left:8px;border-radius:8px;cursor:pointer;">
 Abbrechen
 </button>
+
+<div id="saveMessage" style="display:none;margin-top:12px;font-weight:600;">✅ Einstellungen gespeichert</div>  
 </div>
 
 <section class="card">
@@ -253,7 +255,11 @@ el("saveSettings").addEventListener("click", () => {
   cfg.doses = neueDosen;
   localStorage.setItem("mostrechnerDosen", JSON.stringify(neueDosen));
 
+  el("saveMessage").style.display = "block";
+
+setTimeout(() => {
   el("settingsPanel").style.display = "none";
+}, 1200);
   calc();
 });
 
