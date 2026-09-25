@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f4f4f4">
 <title>Mostrechner</title>
-
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/pakage/dist/xlsx.full.min.js"></script>
+  
 <style>
 :root{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -96,17 +97,31 @@ Berechnung Most / Wein
 
 <script>
 
-let excelUrl="";
+let excelUrl = "";
 
-fetch("./config.json")
-  .then(r=>r.json())
-  .then(config=>{
-    excelUrl=config.excelUrl || "";
-    console.log("Excel-Datei:",excelUrl);
-  })
-  .catch(err=>{
-    console.log("config.json konnte nicht geladen werden",err);
-  });
+async function ladeExcel() {
+  try {
+    const configResponse = await fetch("./config.json", { cache: "no-store" });
+    const config = await configResponse.json();
+    excelUrl = config.excelUrl;
+
+    console.log("Excel-Link geladen:", excelUrl);
+
+    const response = await fetch(excelUrl, { cache: "no-store" });
+
+    if (!response.ok) {
+      throw new Error("Excel-Download fehlgeschlagen: " + response.status);
+    }
+
+    const data = await response.arrayBuffer();
+    const workbook = XLSX.read(data);
+
+    console.log("Excel erfolgreich geladen:", workbook.SheetNames);
+
+  } catch (error) {
+    console.error("Excel konnte nicht geladen werden:", error);
+  }
+}
 
 const cfg={
   doses:{
@@ -233,6 +248,7 @@ function calc(){
 );
 
 calc();
+ladeExcel();
 
 </script>
 
