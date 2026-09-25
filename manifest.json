@@ -1,0 +1,8 @@
+{
+  "name": "Mostrechner",
+  "short_name": "Mostrechner",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff"
+}
