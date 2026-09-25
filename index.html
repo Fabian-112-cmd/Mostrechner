@@ -278,19 +278,24 @@ function calc(){
 
   err.style.display="none";
 
-  if(!L || !sugarTable[a] || !sugarTable[t]){
-    err.textContent=
-    "Bitte Menge und °Oe-Werte zwischen 44 und 124 eingeben.";
-    err.style.display="block";
-    el("results").innerHTML="";
-    return;
-  }
+  if(!L){
+  err.textContent = "Bitte eine Menge eingeben.";
+  err.style.display = "block";
+  el("results").innerHTML = "";
+  return;
+}
 
-  const sugar=
-    (sugarTable[t]-sugarTable[a]) *
+let sugar = null;
+
+if (a && t && sugarTable[a] && sugarTable[t]) {
+  const berechnet =
+    (sugarTable[t] - sugarTable[a]) *
     L *
     cfg.sugarFactor /
     1000;
+
+  sugar = berechnet > 0 ? berechnet : null;
+}
 
   let out="";
 
@@ -314,7 +319,7 @@ function calc(){
   ""
 ],
     [Object.keys(cfg.doses)[7],fmt(dose(Object.keys(cfg.doses)[7],L)),"kg"],
-    ["Zucker",fmt(sugar,2),"kg","sugar"]
+    ["Zucker",sugar == null ? "-" : fmt(sugar,2),"kg","sugar"]
   ]);
 
   out+=card("DAB / Annanvital",[
