@@ -61,6 +61,15 @@ h1{font-size:28px;margin:8px 0 20px}
 <main class="wrap">
 
 <h1>Mostrechner</h1>
+<button id="settingsBtn" type="button">⚙️ Einstellungen</button>
+<div id="settingsPanel" style="display:none;">
+  <h2>⚙️ Einstellungen</h2>
+
+  <div id="settingsList"></div>
+
+  <button id="saveSettings" type="button">Speichern</button>
+  <button id="closeSettings" type="button">Abbrechen</button>
+</div>
 
 <section class="card">
 <h2>Eingabe</h2>
@@ -98,14 +107,21 @@ Berechnung Most / Wein
 <script>
 
 async function ladeDaten() {
+  const gespeichert = localStorage.getItem("mostrechnerDosen");
+
+  if (gespeichert) {
+    cfg.doses = JSON.parse(gespeichert);
+    calc();
+    return;
+  }
+
   try {
     const response = await fetch("./daten.json", { cache: "no-store" });
     const daten = await response.json();
 
     Object.assign(cfg.doses, daten);
-
-    console.log("Dosierungen geladen:", daten);
     calc();
+
   } catch (error) {
     console.error("daten.json konnte nicht geladen werden:", error);
   }
@@ -175,6 +191,50 @@ function card(title,rows){
   </section>`;
 }
 
+function openSettings() {
+  const list = el("settingsList");
+  list.innerHTML = "";
+
+  Object.entries(cfg.doses).forEach(([name, value]) => {
+    list.innerHTML += `
+      <div style="margin-bottom:12px;">
+        <input class="settingName" type="text" value="${name}">
+        <input class="settingValue" type="number" step="any"
+               value="${value ?? ""}" placeholder="Dosierung">
+      </div>
+    `;
+  });
+
+  el("settingsPanel").style.display = "block";
+}
+
+el("settingsBtn").addEventListener("click", openSettings);
+
+el("closeSettings").addEventListener("click", () => {
+  el("settingsPanel").style.display = "none";
+});
+el("saveSettings").addEventListener("click", () => {
+  const names = document.querySelectorAll(".settingName");
+  const values = document.querySelectorAll(".settingValue");
+
+  const neueDosen = {};
+
+  names.forEach((input, i) => {
+    const name = input.value.trim();
+    const value = values[i].value;
+
+    if (name) {
+      neueDosen[name] = value === "" ? null : Number(value);
+    }
+  });
+
+  cfg.doses = neueDosen;
+  localStorage.setItem("mostrechnerDosen", JSON.stringify(neueDosen));
+
+  el("settingsPanel").style.display = "none";
+  calc();
+});
+
 function calc(){
 
   const L=+el("liters").value;
@@ -201,31 +261,31 @@ function calc(){
   let out="";
 
   out+=card("Enzyme",[
-    ["Enzyme",fmt(dose("Enzyme",L)),"g"],
-    ["Ascobin",fmt(dose("Ascobin",L)),"g"],
-    ["Schwefel",fmt(dose("Schwefel",L)),"g"]
+    [Object.keys(cfg.doses)[0],fmt(dose(Object.keys(cfg.doses)[0],L)),"g"],
+    [Object.keys(cfg.doses)[1],fmt(dose(Object.keys(cfg.doses)[1],L)),"g"],
+    [Object.keys(cfg.doses)[2],fmt(dose(Object.keys(cfg.doses)[2],L)),"g"]
   ]);
 
   out+=card("Schönung",[
-    ["Annamost",fmt(dose("Annamost",L)),"g"],
-    ["Kohle",fmt(dose("Kohle",L)),"g"]
+    [Object.keys(cfg.doses)[3],fmt(dose(Object.keys(cfg.doses)[3],L)),"g"],
+    [Object.keys(cfg.doses)[4],fmt(dose(Object.keys(cfg.doses)[4],L)),"g"]
   ]);
 
   out+=card("Hefe / Zucker",[
-    ["Go-Ferm",fmt(dose("Go-Ferm",L)),"g"],
-    ["Hefe (Ansatz)",
-      dose("Hefe (Ansatz)",L)==null
-      ?"–"
-      :fmt(dose("Hefe (Ansatz)",L)),
-      ""
-    ],
-    ["Fermoband",fmt(dose("Fermoband",L)),"kg"],
+    [Object.keys(cfg.doses)[5],fmt(dose(Object.keys(cfg.doses)[5],L)),"g"],
+[Object.keys(cfg.doses)[6],
+  dose(Object.keys(cfg.doses)[6],L)==null
+  ?"-"
+  :fmt(dose(Object.keys(cfg.doses)[6],L)),
+  ""
+],
+    [Object.keys(cfg.doses)[7],fmt(dose(Object.keys(cfg.doses)[7],L)),"kg"],
     ["Zucker",fmt(sugar,2),"kg","sugar"]
   ]);
 
   out+=card("DAB / Annanvital",[
-    ["1. Drittel",fmt(dose("1. Drittel",L)),"g"],
-    ["Hälfte",fmt(dose("Hälfte",L)),"g"]
+    [Object.keys(cfg.doses)[8],fmt(dose(Object.keys(cfg.doses)[8],L)),"g"],
+    [Object.keys(cfg.doses)[9],fmt(dose(Object.keys(cfg.doses)[9],L)),"g"]
   ]);
 
   el("results").innerHTML=out;
