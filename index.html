@@ -205,12 +205,15 @@ if (passwort !== "1234") {
 
   Object.entries(cfg.doses).forEach(([name, value]) => {
     list.innerHTML += `
-      <div style="margin-bottom:12px;">
-        <input class="settingName" type="text" value="${name}">
-        <input class="settingValue" type="number" step="any"
-               value="${value ?? ""}" placeholder="Dosierung">
-      <span>${name === "Fermoband" ? "kg / 1000 L" : "g / 1000 L"}</span>
-      </div>
+      <div style="display:grid;grid-template-columns:1fr 110px 100px;gap:10px;align-items:center;margin-bottom:12px;">
+    <input class="settingName" type="text" value="${name}" style="width:100%;box-sizing:border-box;">
+    <input class="settingValue" type="number" step="any"
+           value="${value ?? ""}" placeholder="Dosierung"
+           style="width:100%;box-sizing:border-box;text-align:center;">
+    <span style="font-weight:600;white-space:nowrap;">
+        ${name === "Fermoband" ? "kg / 1000 L" : "g / 1000 L"}
+    </span>
+</div>
     `;
   });
 
