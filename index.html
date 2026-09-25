@@ -296,7 +296,12 @@ if (a && t && sugarTable[a] && sugarTable[t]) {
 
   sugar = berechnet > 0 ? berechnet : null;
 }
-
+if (a && t && (Number(t) - Number(a)) >= 25) {
+  err.textContent =
+    "⚠️ Hinweis: Die Differenz beträgt 25 °Oe oder mehr. Bitte die zulässige Aufbesserungsmenge beachten.";
+  err.style.display = "block";
+}
+  
   let out="";
 
   out+=card("Enzyme",[
