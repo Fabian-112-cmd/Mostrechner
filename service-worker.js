@@ -4,7 +4,7 @@ const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./daten.json",
-  "./manifest.json"
+  "./manifest.json",
   "./apple-touch-icon.png"
 ];
 
