@@ -1,10 +1,11 @@
-const CACHE_NAME = "mostrechner-v1";
+const CACHE_NAME = "mostrechner-v2";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./daten.json",
   "./manifest.json"
+  "./apple-touch-icon.png"
 ];
 
 self.addEventListener("install", event => {
