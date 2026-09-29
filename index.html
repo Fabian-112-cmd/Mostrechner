@@ -98,10 +98,20 @@ Abbrechen
 
 <div class="field">
 <label for="actual">Gemessen</label>
-<input id="actual" type="number" min="44" max="124" step="1" value="85" style="font-size:18px;font-weight:600;text-align:center;padding:12px;border-radius:10px;border:1px solid #ccc;">
+<input id="actual" type="number" min="44" max="124" step="1" value="" style="font-size:18px;font-weight:600;text-align:center;padding:12px;border-radius:10px;border:1px solid #ccc;">
 <span class="unit">°Oe</span>
 </div>
 
+<div class="field" id="weinartField" style="display:none;">
+  <label for="weinart">Weinart</label>
+  <select id="weinart" style="font-size:18px;font-weight:600;padding:12px;border-radius:10px;border:1px solid #ccc;">
+    <option value="">Bitte wählen</option>
+    <option value="rot">Rotwein</option>
+    <option value="weiss">Weißwein / Roséwein</option>
+  </select>
+  <span class="unit"></span>
+</div>
+  
 <div class="field">
 <label for="target">Wunsch</label>
 <input id="target" type="number" min="44" max="124" step="1" value="100" style="font-size:18px;font-weight:600;text-align:center;padding:12px;border-radius:10px;border:1px solid #ccc;">
@@ -287,11 +297,25 @@ function calc(){
 
 let sugar = null;
 
-if (a && t && sugarTable[a] && sugarTable[t]) {
+const weinart = el("weinart").value;
+let zuckerFaktor = null;
+
+if (weinart === "rot") {
+  zuckerFaktor = 0.24;
+} else if (weinart === "weiss") {
+  zuckerFaktor = 0.21;
+}
+
+if (a && !weinart) {
+  err.textContent = "Bitte Weinart auswählen.";
+  err.style.display = "block";
+}
+  
+  if (a && t && sugarTable[a] && sugarTable[t] && zuckerFaktor) {
   const berechnet =
     (sugarTable[t] - sugarTable[a]) *
     L *
-    cfg.sugarFactor /
+    zuckerFaktor /
     1000;
 
   sugar = berechnet > 0 ? berechnet : null;
@@ -335,9 +359,18 @@ if (a && t && (Number(t) - Number(a)) >= 25) {
   el("results").innerHTML=out;
 }
 
-["liters","actual","target"].forEach(id=>
+["liters","actual","target","weinart"].forEach(id=>
   el(id).addEventListener("input",calc)
 );
+
+el("actual").addEventListener("input", () => {
+  const hatWert = el("actual").value !== "";
+  el("weinartField").style.display = hatWert ? "grid" : "none";
+
+  if (!hatWert) {
+    el("weinart").value = "";
+  }
+});
 
 calc();
 ladeDaten();
