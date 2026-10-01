@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#f4f4f4">
 <title>Mostrechner</title>
 <link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" type="image/png" href="./mostrechner-logo.png">
+<link rel="apple-touch-icon" href="./mostrechner-logo.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mostrechner">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/pakage/dist/xlsx.full.min.js"></script>
@@ -64,7 +65,12 @@ h1{font-size:28px;margin:8px 0 20px}
 
 <main class="wrap">
 
-<h1>Mostrechner</h1>
+<h1 style="display:flex;align-items:center;gap:12px;">
+  <img src="./mostrechner-logo.png" alt=""
+       width="48" height="48"
+       style="border-radius:12px;">
+  Mostrechner
+</h1>
 <button id="settingsBtn" type="button"
 style="padding:10px 16px;font-size:15px;font-weight:600;border-radius:8px;border:1px solid #ccc;background:white;cursor:pointer;margin-bottom:12px;">
 ⚙️ Einstellungen
