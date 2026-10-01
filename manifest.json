@@ -2,7 +2,16 @@
   "name": "Mostrechner",
   "short_name": "Mostrechner",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff"
+  "background_color": "#f4f4f4",
+  "theme_color": "#f4f4f4",
+  "icons": [
+    {
+      "src": "./mostrechner-logo.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }
