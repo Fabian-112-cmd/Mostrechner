@@ -153,18 +153,18 @@
 <body>
 <main class="wrap">
   <h1><img src="./mostrechner-logo.png" alt="" width="48" height="48">Mostrechner</h1>
-  <button id="settingsBtn" type="button" style="margin-bottom:12px;font-weight:600;">âš™ï¸ Einstellungen</button>
+  <button id="settingsBtn" type="button" style="margin-bottom:12px;font-weight:600;">&#9881;&#65039; Einstellungen</button>
   <section id="settingsPanel" class="card" hidden>
-    <h2>âš™ï¸ Einstellungen</h2>
+    <h2>&#9881;&#65039; Einstellungen</h2>
     <div id="settingsList"></div>
-    <h2>Faktoren fÃ¼r die Zuckerberechnung</h2>
+    <h2>Faktoren f&#252;r die Zuckerberechnung</h2>
     <div id="factorList"></div>
-    <button id="saveSettings" type="button">ðŸ’¾ Speichern</button>
+    <button id="saveSettings" type="button">&#128190; Speichern</button>
     <button id="closeSettings" type="button">Abbrechen</button>
-    <p id="saveMessage" role="status" hidden>âœ… Einstellungen gespeichert</p>
+    <p id="saveMessage" role="status" hidden>&#9989; Einstellungen gespeichert</p>
   </section>
   <section class="card">
-    <h2 style="margin-bottom:22px;font-size:22px;">ðŸ‡ Eingabe</h2>
+    <h2 style="margin-bottom:22px;font-size:22px;">&#127815; Eingabe</h2>
     <div class="field">
       <label for="liters">Menge</label>
       <input id="liters" type="number" min="0" step="1" value="1700">
@@ -173,14 +173,14 @@
     <div class="field">
       <label for="actual">Gemessen</label>
       <input id="actual" type="number" min="44" max="124" step="1">
-      <span class="unit">Â°Oe</span>
+      <span class="unit">&#176;Oe</span>
     </div>
     <div class="field" id="weinartField" hidden>
       <label for="weinart">Weinart</label>
       <select id="weinart">
-      <option value="">Bitte wÃ¤hlen</option>
+      <option value="">Bitte w&#228;hlen</option>
       <option value="rot">Rotwein</option>
-      <option value="weiss">WeiÃŸwein / RosÃ©wein</option>
+      <option value="weiss">Wei&#223;wein / Ros&#233;wein</option>
       </select>
       <span>
       </span>
@@ -188,7 +188,7 @@
     <div class="field">
       <label for="target">Wunsch</label>
       <input id="target" type="number" min="44" max="124" step="1" value="100">
-      <span class="unit">Â°Oe</span>
+      <span class="unit">&#176;Oe</span>
     </div>
     <p id="err" class="error" role="status" hidden></p>
   </section>
@@ -199,7 +199,7 @@
     // Richtwerte und Tabellenwerte aus der bisherigen Version.
     const cfg =  {
       doses:  {
-        "Enzyme": 3, "Ascobin": 150, "Schwefel": 100, "Annamost": 300, "Kohle": 200, "Go-Ferm": 300, "Hefe (Ansatz)": null, "Fermoband": 3, "1. Drittel": 500, "HÃ¤lfte": 500
+        "Enzyme": 3, "Ascobin": 150, "Schwefel": 100, "Annamost": 300, "Kohle": 200, "Go-Ferm": 300, "Hefe (Ansatz)": null, "Fermoband": 3, "1. Drittel": 500, "H\u{e4}lfte": 500
       }, perLiters: 1000, factors:  {
         rot: 0.24, weiss: 0.21
       }
@@ -254,21 +254,21 @@
     // Die Rechenwege erscheinen ausschliesslich innerhalb der Einstellungen.
     function calculationText(input, unit) {
       const value = input.value.trim(), L = Number(el("liters").value);
-      if(!value)return"Kein Richtwert hinterlegt â€“ keine Mengenberechnung.";
+      if(!value)return"Kein Richtwert hinterlegt \u{2013} keine Mengenberechnung.";
       const n = Number(value);
-      if(!Number.isFinite(n) || n < 0)return"Bitte einen gÃ¼ltigen Richtwert eingeben.";
-      return`Rechenweg: ${fmt(n,4)} ${unit} Ã· 1.000 L Ã— ${fmt(L)} L = ${fmt(n/1000*L,4)} ${unit}`;
+      if(!Number.isFinite(n) || n < 0)return"Bitte einen g\u{fc}ltigen Richtwert eingeben.";
+      return`Rechenweg: ${fmt(n,4)} ${unit} \u{f7} 1.000 L \u{d7} ${fmt(L)} L = ${fmt(n/1000*L,4)} ${unit}`;
     }
     function factorText(input) {
       const value = Number(input.value), a = Number(el("actual").value), t = Number(el("target").value), L = Number(el("liters").value);
-      const formula = "Rechenweg: (Tabellenwert Wunsch âˆ’ Tabellenwert Gemessen) Ã— Liter Ã— Faktor Ã· 1.000 = Zucker in kg.";
-      if(!(value > 0) || !Number.isFinite(value))return"Bitte einen Faktor grÃ¶ÃŸer als 0 eingeben.";
+      const formula = "Rechenweg: (Tabellenwert Wunsch \u{2212} Tabellenwert Gemessen) \u{d7} Liter \u{d7} Faktor \u{f7} 1.000 = Zucker in kg.";
+      if(!(value > 0) || !Number.isFinite(value))return"Bitte einen Faktor gr\u{f6}\u{df}er als 0 eingeben.";
       if(!el("actual").value || !sugarTable[a] || !sugarTable[t])return formula + " Faktor: " + fmt(value, 4) + ".";
       const result = Math.max(0, (sugarTable[t]-sugarTable[a]) * L * value / 1000);
-      return`${formula} (${sugarTable[t]} âˆ’ ${sugarTable[a]}) Ã— ${fmt(L)} Ã— ${fmt(value,4)} Ã· 1.000 = ${fmt(result,2)} kg`;
+      return`${formula} (${sugarTable[t]} \u{2212} ${sugarTable[a]}) \u{d7} ${fmt(L)} \u{d7} ${fmt(value,4)} \u{f7} 1.000 = ${fmt(result,2)} kg`;
     }
     function openSettings() {
-      if(prompt("Passwort fÃ¼r Einstellungen:") !== "1234") {
+      if(prompt("Passwort f\u{fc}r Einstellungen:") !== "1234") {
         alert("Falsches Passwort!");
         return;
       }
@@ -276,10 +276,10 @@
       el("saveMessage").hidden = true;
       el("settingsList").replaceChildren();
       Object.entries(cfg.doses).forEach(([name, value], index) =>  {
-        const block = document.createElement("div"); block.className = "setting-block"; const row = document.createElement("div"); row.className = "settings-row"; const nameInput = document.createElement("input"); nameInput.className = "settingName"; nameInput.value = name; nameInput.setAttribute("aria-label", "Bezeichnung des Richtwerts"); const input = document.createElement("input"); input.className = "settingValue"; input.type = "number"; input.min = "0"; input.step = "any"; input.value = value ?? ""; input.placeholder = "Dosierung"; input.setAttribute("aria-label", "Richtwert fÃ¼r " + name); const unit = index === 7?"kg": "g"; const label = document.createElement("span"); label.className = "settings-unit"; label.textContent = unit + " / 1000 L"; const way = document.createElement("p"); way.className = "calculation"; const update = () => way.textContent = calculationText(input, unit); input.addEventListener("input", update); update(); row.append(nameInput, input, label); block.append(row, way); el("settingsList").append(block);
+        const block = document.createElement("div"); block.className = "setting-block"; const row = document.createElement("div"); row.className = "settings-row"; const nameInput = document.createElement("input"); nameInput.className = "settingName"; nameInput.value = name; nameInput.setAttribute("aria-label", "Bezeichnung des Richtwerts"); const input = document.createElement("input"); input.className = "settingValue"; input.type = "number"; input.min = "0"; input.step = "any"; input.value = value ?? ""; input.placeholder = "Dosierung"; input.setAttribute("aria-label", "Richtwert f\u{fc}r " + name); const unit = index === 7?"kg": "g"; const label = document.createElement("span"); label.className = "settings-unit"; label.textContent = unit + " / 1000 L"; const way = document.createElement("p"); way.className = "calculation"; const update = () => way.textContent = calculationText(input, unit); input.addEventListener("input", update); update(); row.append(nameInput, input, label); block.append(row, way); el("settingsList").append(block);
       });
       el("factorList").replaceChildren();
-      for(const[key, title]of[["rot", "Rotwein"], ["weiss", "WeiÃŸwein / RosÃ©wein"]]) {
+      for(const[key, title]of[["rot", "Rotwein"], ["weiss", "Wei\u{df}wein / Ros\u{e9}wein"]]) {
         const block = document.createElement("div");
         block.className = "setting-block";
         const row = document.createElement("div");
@@ -315,12 +315,12 @@
       try {
         const names = document.querySelectorAll(".settingName"), values = document.querySelectorAll(".settingValue"), newDoses =  {
         }; names.forEach((input, i) =>  {
-          const name = input.value.trim(), raw = values[i].value.trim(), value = raw === ""?null: Number(raw); if(!name)throw new Error("Bitte alle Bezeichnungen ausfÃ¼llen."); if(Object.hasOwn(newDoses, name))throw new Error("Bezeichnungen dÃ¼rfen nicht doppelt vorkommen."); if(value !== null && (!Number.isFinite(value) || value < 0))throw new Error("Bitte gÃ¼ltige Dosierungen ab 0 eingeben."); Object.defineProperty(newDoses, name,  {
+          const name = input.value.trim(), raw = values[i].value.trim(), value = raw === ""?null: Number(raw); if(!name)throw new Error("Bitte alle Bezeichnungen ausf\u{fc}llen."); if(Object.hasOwn(newDoses, name))throw new Error("Bezeichnungen d\u{fc}rfen nicht doppelt vorkommen."); if(value !== null && (!Number.isFinite(value) || value < 0))throw new Error("Bitte g\u{fc}ltige Dosierungen ab 0 eingeben."); Object.defineProperty(newDoses, name,  {
             value, enumerable: true, writable: true, configurable: true
           });
         }); const factors =  {
         }; for(const key of["rot", "weiss"]) {
-          const raw = el("factor-" + key).value, value = Number(raw); if(!raw || !Number.isFinite(value) || value <= 0)throw new Error("Bitte beide Faktoren grÃ¶ÃŸer als 0 eingeben."); factors[key] = value;
+          const raw = el("factor-" + key).value, value = Number(raw); if(!raw || !Number.isFinite(value) || value <= 0)throw new Error("Bitte beide Faktoren gr\u{f6}\u{df}er als 0 eingeben."); factors[key] = value;
         }
         localStorage.setItem("mostrechnerDosen", JSON.stringify(newDoses)); localStorage.setItem("mostrechnerFaktoren", JSON.stringify(factors)); cfg.doses = newDoses; cfg.factors = factors; el("saveMessage").hidden = false; calc(); closeTimer = setTimeout(() => el("settingsPanel").hidden = true, 1200);
       }
@@ -333,7 +333,7 @@
       const L = Number(el("liters").value), a = Number(el("actual").value), t = Number(el("target").value), err = el("err");
       err.hidden = true;
       if(!Number.isFinite(L) || L <= 0) {
-        err.textContent = "Bitte eine Menge grÃ¶ÃŸer als 0 eingeben.";
+        err.textContent = "Bitte eine Menge gr\u{f6}\u{df}er als 0 eingeben.";
         err.hidden = false;
         el("results").innerHTML = "";
         return;
@@ -343,7 +343,7 @@
       let sugar = null;
       const factor = cfg.factors[weinart];
       if(a && !weinart) {
-        err.textContent = "Bitte Weinart auswÃ¤hlen.";
+        err.textContent = "Bitte Weinart ausw\u{e4}hlen.";
         err.hidden = false;
       }
       if(a && t && sugarTable[a] && sugarTable[t] && factor) {
@@ -351,12 +351,12 @@
         sugar = result > 0?result: null;
       }
       if(a && t && t-a >= 25) {
-        err.textContent = "âš ï¸ Hinweis: Die Differenz betrÃ¤gt 25 Â°Oe oder mehr. Bitte die zulÃ¤ssige Aufbesserungsmenge beachten.";
+        err.textContent = "\u{26a0}\u{fe0f} Hinweis: Die Differenz betr\u{e4}gt 25 \u{b0}Oe oder mehr. Bitte die zul\u{e4}ssige Aufbesserungsmenge beachten.";
         err.hidden = false;
       }
       const keys = Object.keys(cfg.doses);
       const entry = (i, unit) => [keys[i], dose(keys[i], L) == null?"-": fmt(dose(keys[i], L)), unit];
-      el("results").innerHTML = card("Enzyme", [entry(0, "g"), entry(1, "g"), entry(2, "g")]) + card("SchÃ¶nung", [entry(3, "g"), entry(4, "g")]) + card("Hefe / Zucker", [entry(5, "g"), entry(6, ""), entry(7, "kg"), ["Zucker", sugar == null?"-": fmt(sugar, 2), "kg", "sugar"]]) + card("DAB / Annanvital", [entry(8, "g"), entry(9, "g")]);
+      el("results").innerHTML = card("Enzyme", [entry(0, "g"), entry(1, "g"), entry(2, "g")]) + card("Sch\u{f6}nung", [entry(3, "g"), entry(4, "g")]) + card("Hefe / Zucker", [entry(5, "g"), entry(6, ""), entry(7, "kg"), ["Zucker", sugar == null?"-": fmt(sugar, 2), "kg", "sugar"]]) + card("DAB / Annanvital", [entry(8, "g"), entry(9, "g")]);
     }
     ["liters", "actual", "target", "weinart"].forEach(id => el(id).addEventListener("input", () =>  {
       if(id === "actual" && el("actual").value === "")el("weinart").value = ""; calc();
