@@ -132,6 +132,12 @@
       margin:5px 0 0;
       overflow-wrap:anywhere;
     }
+    .settings-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .settings-actions #tableBtn { margin-left:auto; }
+    .sugar-table { width:100%; border-collapse:collapse; font-size:14px; }
+    .sugar-table th, .sugar-table td { padding:8px 12px; border-bottom:1px solid #eee; text-align:right; }
+    .sugar-table th { background:#f4f4f4; }
+    .table-scroll { max-height:360px; overflow:auto; }
     [hidden] {
       display:none !important;
     }
@@ -159,8 +165,21 @@
     <div id="settingsList"></div>
     <h2>Faktoren f&#252;r die Zuckerberechnung</h2>
     <div id="factorList"></div>
-    <button id="saveSettings" type="button">&#128190; Speichern</button>
-    <button id="closeSettings" type="button">Abbrechen</button>
+    <div class="settings-actions">
+      <button id="saveSettings" type="button">&#128190; Speichern</button>
+      <button id="closeSettings" type="button">Abbrechen</button>
+      <button id="tableBtn" type="button" aria-expanded="false" aria-controls="sugarTablePanel">Tabelle</button>
+    </div>
+    <section id="sugarTablePanel" hidden style="margin-top:16px;">
+      <h2>Zuckertabelle</h2>
+      <p class="note">Tabellenwerte aus diesem Mostrechner. Die Zuckerberechnung verwendet die Differenz zwischen Wunsch- und Messwert.</p>
+      <div class="table-scroll">
+        <table class="sugar-table">
+          <thead><tr><th scope="col">Mostgewicht (&#176;Oe)</th><th scope="col">Zucker (g/L)</th></tr></thead>
+          <tbody id="sugarTableRows"></tbody>
+        </table>
+      </div>
+    </section>
     <p id="saveMessage" role="status" hidden>&#9989; Einstellungen gespeichert</p>
   </section>
   <section class="card">
@@ -252,31 +271,73 @@
   return `<section class="card"><h2>${escapeHtml(title)}</h2>${rows.map(([n,v,u,cl=""])=>`<div class="row ${cl}"><span>${escapeHtml(n)}</span><span class="val">${escapeHtml(v)}${u?" "+escapeHtml(u):""}</span></div>`).join("")}</section>`;
 }
     // Die Rechenwege erscheinen ausschliesslich innerhalb der Einstellungen.
-    function calculationText(input, unit) {
-      const value = input.value.trim(), L = Number(el("liters").value);
-      if(!value)return"Kein Richtwert hinterlegt \u{2013} keine Mengenberechnung.";
-      const n = Number(value);
-      if(!Number.isFinite(n) || n < 0)return"Bitte einen g\u{fc}ltigen Richtwert eingeben.";
-      return`Rechenweg: ${fmt(n,4)} ${unit} \u{f7} 1.000 L \u{d7} ${fmt(L)} L = ${fmt(n/1000*L,4)} ${unit}`;
-    }
     function factorText(input) {
-      const value = Number(input.value), a = Number(el("actual").value), t = Number(el("target").value), L = Number(el("liters").value);
-      const formula = "Rechenweg: (Tabellenwert Wunsch \u{2212} Tabellenwert Gemessen) \u{d7} Liter \u{d7} Faktor \u{f7} 1.000 = Zucker in kg.";
-      if(!(value > 0) || !Number.isFinite(value))return"Bitte einen Faktor gr\u{f6}\u{df}er als 0 eingeben.";
-      if(!el("actual").value || !sugarTable[a] || !sugarTable[t])return formula + " Faktor: " + fmt(value, 4) + ".";
-      const result = Math.max(0, (sugarTable[t]-sugarTable[a]) * L * value / 1000);
-      return`${formula} (${sugarTable[t]} \u{2212} ${sugarTable[a]}) \u{d7} ${fmt(L)} \u{d7} ${fmt(value,4)} \u{f7} 1.000 = ${fmt(result,2)} kg`;
+      const factor = Number(input.value);
+      const actual = Number(el("actual").value);
+      const target = Number(el("target").value);
+      const liters = Number(el("liters").value);
+      const formula = "Rechenweg: Diff. Zucker (Tabelle) \u{d7} Liter \u{d7} Faktor \u{f7} 1.000 = ";
+      if (!Number.isFinite(factor) || factor <= 0) {
+        return "Bitte einen Faktor gr\u{f6}\u{df}er als 0 eingeben.";
+      }
+      if (!el("actual").value || !sugarTable[actual] || !sugarTable[target]) {
+        return formula + "\u{2026} kg";
+      }
+      const result = Math.max(0, (sugarTable[target] - sugarTable[actual]) * liters * factor / 1000);
+      return formula + fmt(result, 2) + " kg";
     }
+    el("tableBtn").addEventListener("click", () => {
+      const panel = el("sugarTablePanel");
+      panel.hidden = !panel.hidden;
+      el("tableBtn").setAttribute("aria-expanded", String(!panel.hidden));
+      if (!panel.hidden) {
+        const body = el("sugarTableRows");
+        body.replaceChildren();
+        for (const [oe, sugar] of Object.entries(sugarTable)) {
+          const row = document.createElement("tr");
+          for (const value of [oe, sugar]) {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.append(cell);
+          }
+          body.append(row);
+        }
+      }
+    });
     function openSettings() {
       if(prompt("Passwort f\u{fc}r Einstellungen:") !== "1234") {
         alert("Falsches Passwort!");
         return;
       }
       clearTimeout(closeTimer);
+      el("sugarTablePanel").hidden = true;
+      el("tableBtn").setAttribute("aria-expanded", "false");
       el("saveMessage").hidden = true;
       el("settingsList").replaceChildren();
       Object.entries(cfg.doses).forEach(([name, value], index) =>  {
-        const block = document.createElement("div"); block.className = "setting-block"; const row = document.createElement("div"); row.className = "settings-row"; const nameInput = document.createElement("input"); nameInput.className = "settingName"; nameInput.value = name; nameInput.setAttribute("aria-label", "Bezeichnung des Richtwerts"); const input = document.createElement("input"); input.className = "settingValue"; input.type = "number"; input.min = "0"; input.step = "any"; input.value = value ?? ""; input.placeholder = "Dosierung"; input.setAttribute("aria-label", "Richtwert f\u{fc}r " + name); const unit = index === 7?"kg": "g"; const label = document.createElement("span"); label.className = "settings-unit"; label.textContent = unit + " / 1000 L"; const way = document.createElement("p"); way.className = "calculation"; const update = () => way.textContent = calculationText(input, unit); input.addEventListener("input", update); update(); row.append(nameInput, input, label); block.append(row, way); el("settingsList").append(block);
+        const block = document.createElement("div");
+        block.className = "setting-block";
+        const row = document.createElement("div");
+        row.className = "settings-row";
+        const nameInput = document.createElement("input");
+        nameInput.className = "settingName";
+        nameInput.value = name;
+        nameInput.setAttribute("aria-label", "Bezeichnung des Richtwerts");
+        const input = document.createElement("input");
+        input.className = "settingValue";
+        input.type = "number";
+        input.min = "0";
+        input.step = "any";
+        input.value = value ?? "";
+        input.placeholder = "Dosierung";
+        input.setAttribute("aria-label", "Richtwert f\u{fc}r " + name);
+        const unit = index === 7?"kg": "g";
+        const label = document.createElement("span");
+        label.className = "settings-unit";
+        label.textContent = unit + " / 1000 L";
+        row.append(nameInput, input, label);
+        block.append(row);
+        el("settingsList").append(block);
       });
       el("factorList").replaceChildren();
       for(const[key, title]of[["rot", "Rotwein"], ["weiss", "Wei\u{df}wein / Ros\u{e9}wein"]]) {
