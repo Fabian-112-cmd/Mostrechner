@@ -1,393 +1,371 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f4f4f4">
-<title>Mostrechner</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" type="image/png" href="./mostrechner-logo.png">
-<link rel="apple-touch-icon" href="./mostrechner-logo.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Mostrechner">
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/pakage/dist/xlsx.full.min.js"></script>
-  
-<style>
-:root{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  color:#111;
-  background:#f4f4f4
-}
-*{box-sizing:border-box}
-body{margin:0}
-.wrap{max-width:560px;margin:auto;padding:20px 16px 40px}
-h1{font-size:28px;margin:8px 0 20px}
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:16px;
-  margin:0 0 14px;
-  box-shadow:0 1px 5px #00000010
-}
-.card h2{font-size:18px;margin:0 0 14px}
-.field{
-  display:grid;
-  grid-template-columns:1fr 145px 55px;
-  gap:8px;
-  align-items:center;
-  margin:7px 0
-}
-.field input{
-  width:100%;
-  font-size:18px;
-  padding:11px;
-  border:1px solid #bbb;
-  border-radius:9px;
-  text-align:right
-}
-.unit{color:#555;font-size:16px;font-weight:500}
-.row{
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  padding:9px 0;
-  border-bottom:1px solid #eee
-}
-.row:last-child{border:0}
-.val{font-weight:650;text-align:right}
-.sugar{font-size:24px;font-weight:700}
-.note{font-size:13px;color:#666;margin-top:10px}
-.error{color:#a00;font-size:14px;display:none}
-</style>
-</head>
-
-<body>
-
-<main class="wrap">
-
-<h1 style="display:flex;align-items:center;gap:12px;">
-  <img src="./mostrechner-logo.png" alt=""
-       width="48" height="48"
-       style="border-radius:12px;">
-  Mostrechner
-</h1>
-<button id="settingsBtn" type="button"
-style="padding:10px 16px;font-size:15px;font-weight:600;border-radius:8px;border:1px solid #ccc;background:white;cursor:pointer;margin-bottom:12px;">
-⚙️ Einstellungen
-</button>
-<div id="settingsPanel" class="card" style="display:none;margin-top:16px;">
-  <h2>⚙️ Einstellungen</h2>
-
-  <div id="settingsList"></div>
-
-  <button id="saveSettings" type="button"
-style="padding:10px 18px;font-size:16px;font-weight:600;margin-top:10px;border-radius:8px;cursor:pointer;">
-💾 Speichern
-</button>
-
-<button id="closeSettings" type="button"
-style="padding:10px 18px;font-size:16px;margin-top:10px;margin-left:8px;border-radius:8px;cursor:pointer;">
-Abbrechen
-</button>
-
-<div id="saveMessage" style="display:none;margin-top:12px;font-weight:600;">✅ Einstellungen gespeichert</div>  
-</div>
-
-<section class="card">
-<h2 style="margin-top:0;margin-bottom:22px;font-size:22px;">🍇 Eingabe</h2>
-
-<div class="field">
-<label for="liters">Menge</label>
-<input id="liters" type="number" min="0" step="1" value="1700" style="font-size:18px;font-weight:600;text-align:center;padding:12px;border-radius:10px;border:1px solid #ccc;">
-<span class="unit">Liter</span>
-</div>
-
-<div class="field">
-<label for="actual">Gemessen</label>
-<input id="actual" type="number" min="44" max="124" step="1" value="" style="font-size:18px;font-weight:600;text-align:center;padding:12px;border-radius:10px;border:1px solid #ccc;">
-<span class="unit">°Oe</span>
-</div>
-
-<div class="field" id="weinartField" style="display:none;">
-  <label for="weinart">Weinart</label>
-  <select id="weinart" style="font-size:18px;font-weight:600;padding:12px;border-radius:10px;border:1px solid #ccc;">
-    <option value="">Bitte wählen</option>
-    <option value="rot">Rotwein</option>
-    <option value="weiss">Weißwein / Roséwein</option>
-  </select>
-  <span class="unit"></span>
-</div>
-  
-<div class="field">
-<label for="target">Wunsch</label>
-<input id="target" type="number" min="44" max="124" step="1" value="100" style="font-size:18px;font-weight:600;text-align:center;padding:12px;border-radius:10px;border:1px solid #ccc;">
-<span class="unit">°Oe</span>
-</div>
-
-<div id="err" class="error"></div>
-
-</section>
-
-<div id="results"></div>
-
-<p class="note">
-Berechnung Most / Wein
-</p>
-
-</main>
-
-<script>
-
-async function ladeDaten() {
-  const gespeichert = localStorage.getItem("mostrechnerDosen");
-
-  if (gespeichert) {
-    cfg.doses = JSON.parse(gespeichert);
-    calc();
-    return;
-  }
-
-  try {
-    const response = await fetch("./daten.json", { cache: "no-store" });
-    const daten = await response.json();
-
-    Object.assign(cfg.doses, daten);
-    calc();
-
-  } catch (error) {
-    console.error("daten.json konnte nicht geladen werden:", error);
-  }
-}
-
-const cfg={
-  doses:{
-    "Enzyme":3,
-    "Ascobin":150,
-    "Schwefel":100,
-    "Annamost":300,
-    "Kohle":200,
-    "Go-Ferm":300,
-    "Hefe (Ansatz)":null,
-    "Fermoband":3,
-    "1. Drittel":500,
-    "Hälfte":500
-  },
-  perLiters:1000,
-  sugarFactor:0.35
-};
-
-const sugarTable={
-44:87,45:90,46:92,47:95,48:98,49:100,
-50:103,51:106,52:108,53:111,54:114,
-55:116,56:119,57:122,58:124,59:127,
-60:130,61:132,62:135,63:138,64:140,
-65:143,66:146,67:148,68:151,69:154,
-70:158,71:159,72:162,73:164,74:167,
-75:170,76:172,77:175,78:178,79:180,
-80:183,81:186,82:188,83:191,84:193,
-85:196,86:199,87:201,88:204,89:207,
-90:209,91:212,92:215,93:217,94:220,
-95:223,96:225,97:228,98:231,99:233,
-100:236,101:239,102:241,103:244,
-104:247,105:249,106:252,107:255,
-108:257,109:260,110:263,111:265,
-112:268,113:271,114:273,115:276,
-116:279,117:281,118:284,119:287,
-120:289,121:292,122:295,123:297,
-124:300
-};
-
-const fmt=(n,d=1)=>
-new Intl.NumberFormat(
-  "de-DE",
-  {maximumFractionDigits:d}
-).format(n);
-
-const el=id=>document.getElementById(id);
-
-function dose(name,L){
-  const x=cfg.doses[name];
-  return x==null ? null : x/cfg.perLiters*L;
-}
-
-function card(title,rows){
-  return `
-  <section class="card">
-  <h2>${title}</h2>
-  ${rows.map(([n,v,u,cl=""])=>`
-    <div class="row ${cl}">
-      <span>${n}</span>
-      <span class="val">${v}${u?" "+u:""}</span>
-    </div>
-  `).join("")}
-  </section>`;
-}
-
-function openSettings() {
-  
-  const passwort = prompt("Passwort für Einstellungen:");
-
-if (passwort !== "1234") {
-  alert("Falsches Passwort!");
-  return;
-}
-
-  el("saveMessage").style.display = "none";
-  
-  const list = el("settingsList");
-  list.innerHTML = "";
-
-  Object.entries(cfg.doses).forEach(([name, value]) => {
-    list.innerHTML += `
-      <div style="display:grid;grid-template-columns:1fr 110px 100px;gap:10px;align-items:center;margin-bottom:12px;">
-    <input class="settingName" type="text" value="${name}" style="width:100%;box-sizing:border-box;">
-    <input class="settingValue" type="number" step="any"
-           value="${value ?? ""}" placeholder="Dosierung"
-           style="width:100%;box-sizing:border-box;text-align:center;">
-    <span style="font-weight:600;white-space:nowrap;">
-        ${name === "Fermoband" ? "kg / 1000 L" : "g / 1000 L"}
-    </span>
-</div>
-    `;
-  });
-
-  el("settingsPanel").style.display = "block";
-}
-
-el("settingsBtn").addEventListener("click", openSettings);
-
-el("closeSettings").addEventListener("click", () => {
-  el("settingsPanel").style.display = "none";
-});
-el("saveSettings").addEventListener("click", () => {
-  const names = document.querySelectorAll(".settingName");
-  const values = document.querySelectorAll(".settingValue");
-
-  const neueDosen = {};
-
-  names.forEach((input, i) => {
-    const name = input.value.trim();
-    const value = values[i].value;
-
-    if (name) {
-      neueDosen[name] = value === "" ? null : Number(value);
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f4f4f4">
+  <title>Mostrechner</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./mostrechner-logo.png">
+  <link rel="apple-touch-icon" href="./mostrechner-logo.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mostrechner">
+  <style>
+    :root {
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:#111;
+      background:#f4f4f4;
     }
-  });
-
-  cfg.doses = neueDosen;
-  localStorage.setItem("mostrechnerDosen", JSON.stringify(neueDosen));
-
-  el("saveMessage").style.display = "block";
-
-setTimeout(() => {
-  el("settingsPanel").style.display = "none";
-}, 1200);
-  calc();
-});
-
-function calc(){
-
-  const L=+el("liters").value;
-  const a=+el("actual").value;
-  const t=+el("target").value;
-  const err=el("err");
-
-  err.style.display="none";
-
-  if(!L){
-  err.textContent = "Bitte eine Menge eingeben.";
-  err.style.display = "block";
-  el("results").innerHTML = "";
-  return;
-}
-
-let sugar = null;
-
-const weinart = el("weinart").value;
-let zuckerFaktor = null;
-
-if (weinart === "rot") {
-  zuckerFaktor = 0.24;
-} else if (weinart === "weiss") {
-  zuckerFaktor = 0.21;
-}
-
-if (a && !weinart) {
-  err.textContent = "Bitte Weinart auswählen.";
-  err.style.display = "block";
-}
-  
-  if (a && t && sugarTable[a] && sugarTable[t] && zuckerFaktor) {
-  const berechnet =
-    (sugarTable[t] - sugarTable[a]) *
-    L *
-    zuckerFaktor /
-    1000;
-
-  sugar = berechnet > 0 ? berechnet : null;
-}
-if (a && t && (Number(t) - Number(a)) >= 25) {
-  err.textContent =
-    "⚠️ Hinweis: Die Differenz beträgt 25 °Oe oder mehr. Bitte die zulässige Aufbesserungsmenge beachten.";
-  err.style.display = "block";
-}
-  
-  let out="";
-
-  out+=card("Enzyme",[
-    [Object.keys(cfg.doses)[0],fmt(dose(Object.keys(cfg.doses)[0],L)),"g"],
-    [Object.keys(cfg.doses)[1],fmt(dose(Object.keys(cfg.doses)[1],L)),"g"],
-    [Object.keys(cfg.doses)[2],fmt(dose(Object.keys(cfg.doses)[2],L)),"g"]
-  ]);
-
-  out+=card("Schönung",[
-    [Object.keys(cfg.doses)[3],fmt(dose(Object.keys(cfg.doses)[3],L)),"g"],
-    [Object.keys(cfg.doses)[4],fmt(dose(Object.keys(cfg.doses)[4],L)),"g"]
-  ]);
-
-  out+=card("Hefe / Zucker",[
-    [Object.keys(cfg.doses)[5],fmt(dose(Object.keys(cfg.doses)[5],L)),"g"],
-[Object.keys(cfg.doses)[6],
-  dose(Object.keys(cfg.doses)[6],L)==null
-  ?"-"
-  :fmt(dose(Object.keys(cfg.doses)[6],L)),
-  ""
-],
-    [Object.keys(cfg.doses)[7],fmt(dose(Object.keys(cfg.doses)[7],L)),"kg"],
-    ["Zucker",sugar == null ? "-" : fmt(sugar,2),"kg","sugar"]
-  ]);
-
-  out+=card("DAB / Annanvital",[
-    [Object.keys(cfg.doses)[8],fmt(dose(Object.keys(cfg.doses)[8],L)),"g"],
-    [Object.keys(cfg.doses)[9],fmt(dose(Object.keys(cfg.doses)[9],L)),"g"]
-  ]);
-
-  el("results").innerHTML=out;
-}
-
-["liters","actual","target","weinart"].forEach(id=>
-  el(id).addEventListener("input",calc)
-);
-
-el("actual").addEventListener("input", () => {
-  const hatWert = el("actual").value !== "";
-  el("weinartField").style.display = hatWert ? "grid" : "none";
-
-  if (!hatWert) {
-    el("weinart").value = "";
-  }
-});
-
-calc();
-ladeDaten();
-
-</script>
+    * {
+      box-sizing:border-box;
+    }
+    body {
+      margin:0;
+    }
+    .wrap {
+      max-width:560px;
+      margin:auto;
+      padding:20px 16px 40px;
+    }
+    h1 {
+      font-size:28px;
+      margin:8px 0 20px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    h1 img {
+      border-radius:12px;
+    }
+    .card {
+      background:#fff;
+      border-radius:14px;
+      padding:16px;
+      margin:0 0 14px;
+      box-shadow:0 1px 5px #00000010;
+    }
+    .card h2 {
+      font-size:18px;
+      margin:0 0 14px;
+    }
+    .field {
+      display:grid;
+      grid-template-columns:1fr 145px 55px;
+      gap:8px;
+      align-items:center;
+      margin:7px 0;
+    }
+    .field input, .field select {
+      width:100%;
+      font-size:18px;
+      font-weight:600;
+      padding:12px;
+      border:1px solid #ccc;
+      border-radius:10px;
+      text-align:center;
+      background:white;
+    }
+    .unit {
+      color:#555;
+      font-size:16px;
+      font-weight:500;
+    }
+    .row {
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+      padding:9px 0;
+      border-bottom:1px solid #eee;
+    }
+    .row:last-child {
+      border:0;
+    }
+    .val {
+      font-weight:650;
+      text-align:right;
+    }
+    .sugar {
+      font-size:24px;
+      font-weight:700;
+    }
+    .note {
+      font-size:13px;
+      color:#666;
+      margin-top:10px;
+    }
+    .error {
+      color:#a00;
+      font-size:14px;
+    }
+    button {
+      padding:10px 16px;
+      font-size:16px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      background:white;
+      cursor:pointer;
+    }
+    .settings-row {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 100px 95px;
+      gap:8px;
+      align-items:center;
+    }
+    .settings-row input {
+      width:100%;
+      min-width:0;
+      padding:8px;
+      border:1px solid #bbb;
+      border-radius:6px;
+      font-size:15px;
+    }
+    .settingValue {
+      text-align:center;
+    }
+    .setting-block {
+      margin-bottom:16px;
+    }
+    .calculation {
+      font-size:12px;
+      line-height:1.5;
+      color:#777;
+      margin:5px 0 0;
+      overflow-wrap:anywhere;
+    }
+    [hidden] {
+      display:none !important;
+    }
+    @media(max-width:420px) {
+      .field {
+      grid-template-columns:minmax(0,1fr) 115px 45px;
+    }
+    .settings-row {
+      grid-template-columns:minmax(0,1fr) 80px;
+    }
+    .settings-unit {
+      grid-column:1 / -1;
+      font-size:13px;
+    }
+    
+    }
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <h1><img src="./mostrechner-logo.png" alt="" width="48" height="48">Mostrechner</h1>
+  <button id="settingsBtn" type="button" style="margin-bottom:12px;font-weight:600;">âš™ï¸ Einstellungen</button>
+  <section id="settingsPanel" class="card" hidden>
+    <h2>âš™ï¸ Einstellungen</h2>
+    <div id="settingsList"></div>
+    <h2>Faktoren fÃ¼r die Zuckerberechnung</h2>
+    <div id="factorList"></div>
+    <button id="saveSettings" type="button">ðŸ’¾ Speichern</button>
+    <button id="closeSettings" type="button">Abbrechen</button>
+    <p id="saveMessage" role="status" hidden>âœ… Einstellungen gespeichert</p>
+  </section>
+  <section class="card">
+    <h2 style="margin-bottom:22px;font-size:22px;">ðŸ‡ Eingabe</h2>
+    <div class="field">
+      <label for="liters">Menge</label>
+      <input id="liters" type="number" min="0" step="1" value="1700">
+      <span class="unit">Liter</span>
+    </div>
+    <div class="field">
+      <label for="actual">Gemessen</label>
+      <input id="actual" type="number" min="44" max="124" step="1">
+      <span class="unit">Â°Oe</span>
+    </div>
+    <div class="field" id="weinartField" hidden>
+      <label for="weinart">Weinart</label>
+      <select id="weinart">
+      <option value="">Bitte wÃ¤hlen</option>
+      <option value="rot">Rotwein</option>
+      <option value="weiss">WeiÃŸwein / RosÃ©wein</option>
+      </select>
+      <span>
+      </span>
+    </div>
+    <div class="field">
+      <label for="target">Wunsch</label>
+      <input id="target" type="number" min="44" max="124" step="1" value="100">
+      <span class="unit">Â°Oe</span>
+    </div>
+    <p id="err" class="error" role="status" hidden></p>
+  </section>
+  <div id="results"></div>
+  <p class="note">Berechnung Most / Wein</p>
+</main>
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js");
-  });
+    // Richtwerte und Tabellenwerte aus der bisherigen Version.
+    const cfg =  {
+      doses:  {
+        "Enzyme": 3, "Ascobin": 150, "Schwefel": 100, "Annamost": 300, "Kohle": 200, "Go-Ferm": 300, "Hefe (Ansatz)": null, "Fermoband": 3, "1. Drittel": 500, "HÃ¤lfte": 500
+      }, perLiters: 1000, factors:  {
+        rot: 0.24, weiss: 0.21
+      }
+    };
+    const sugarTable =  {
+      44: 87, 45: 90, 46: 92, 47: 95, 48: 98, 49: 100, 50: 103, 51: 106, 52: 108, 53: 111, 54: 114, 55: 116, 56: 119, 57: 122, 58: 124, 59: 127, 60: 130, 61: 132, 62: 135, 63: 138, 64: 140, 65: 143, 66: 146, 67: 148, 68: 151, 69: 154, 70: 158, 71: 159, 72: 162, 73: 164, 74: 167, 75: 170, 76: 172, 77: 175, 78: 178, 79: 180, 80: 183, 81: 186, 82: 188, 83: 191, 84: 193, 85: 196, 86: 199, 87: 201, 88: 204, 89: 207, 90: 209, 91: 212, 92: 215, 93: 217, 94: 220, 95: 223, 96: 225, 97: 228, 98: 231, 99: 233, 100: 236, 101: 239, 102: 241, 103: 244, 104: 247, 105: 249, 106: 252, 107: 255, 108: 257, 109: 260, 110: 263, 111: 265, 112: 268, 113: 271, 114: 273, 115: 276, 116: 279, 117: 281, 118: 284, 119: 287, 120: 289, 121: 292, 122: 295, 123: 297, 124: 300
+    };
+    const el = id => document.getElementById(id);
+    const fmt = (n, d = 1) => new Intl.NumberFormat("de-DE",  {
+      maximumFractionDigits: d
+    }).format(n);
+    const dose = (name, L) => cfg.doses[name] == null?null: cfg.doses[name] / cfg.perLiters * L;
+    const escapeHtml = value => String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    let closeTimer;
+    // Bestehende Dosierungen bleiben gespeichert; Faktoren werden getrennt gespeichert.
+    async function ladeDaten() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("mostrechnerFaktoren") || "null");
+        for(const key of["rot", "weiss"])if(saved && Number.isFinite(saved[key]) && saved[key] > 0)cfg.factors[key] = saved[key];
+      }
+      catch(e) {
+        console.error("Faktoren konnten nicht geladen werden:", e);
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem("mostrechnerDosen") || "null");
+        if(saved && typeof saved === "object" && !Array.isArray(saved)) {
+          cfg.doses = saved;
+          calc();
+          return;
+        }
+      }
+      catch(e) {
+        console.error("Dosierungen konnten nicht geladen werden:", e);
+      }
+      calc();
+      try {
+        const response = await fetch("./daten.json",  {
+          cache: "no-store"
+        });
+        if(!response.ok)throw new Error("HTTP " + response.status);
+        const data = await response.json();
+        Object.assign(cfg.doses, data);
+        calc();
+      }
+      catch(e) {
+        console.error("daten.json konnte nicht geladen werden:", e);
+      }
+    }
+    function card(title,rows) {
+  return `<section class="card"><h2>${escapeHtml(title)}</h2>${rows.map(([n,v,u,cl=""])=>`<div class="row ${cl}"><span>${escapeHtml(n)}</span><span class="val">${escapeHtml(v)}${u?" "+escapeHtml(u):""}</span></div>`).join("")}</section>`;
 }
-</script>
+    // Die Rechenwege erscheinen ausschliesslich innerhalb der Einstellungen.
+    function calculationText(input, unit) {
+      const value = input.value.trim(), L = Number(el("liters").value);
+      if(!value)return"Kein Richtwert hinterlegt â€“ keine Mengenberechnung.";
+      const n = Number(value);
+      if(!Number.isFinite(n) || n < 0)return"Bitte einen gÃ¼ltigen Richtwert eingeben.";
+      return`Rechenweg: ${fmt(n,4)} ${unit} Ã· 1.000 L Ã— ${fmt(L)} L = ${fmt(n/1000*L,4)} ${unit}`;
+    }
+    function factorText(input) {
+      const value = Number(input.value), a = Number(el("actual").value), t = Number(el("target").value), L = Number(el("liters").value);
+      const formula = "Rechenweg: (Tabellenwert Wunsch âˆ’ Tabellenwert Gemessen) Ã— Liter Ã— Faktor Ã· 1.000 = Zucker in kg.";
+      if(!(value > 0) || !Number.isFinite(value))return"Bitte einen Faktor grÃ¶ÃŸer als 0 eingeben.";
+      if(!el("actual").value || !sugarTable[a] || !sugarTable[t])return formula + " Faktor: " + fmt(value, 4) + ".";
+      const result = Math.max(0, (sugarTable[t]-sugarTable[a]) * L * value / 1000);
+      return`${formula} (${sugarTable[t]} âˆ’ ${sugarTable[a]}) Ã— ${fmt(L)} Ã— ${fmt(value,4)} Ã· 1.000 = ${fmt(result,2)} kg`;
+    }
+    function openSettings() {
+      if(prompt("Passwort fÃ¼r Einstellungen:") !== "1234") {
+        alert("Falsches Passwort!");
+        return;
+      }
+      clearTimeout(closeTimer);
+      el("saveMessage").hidden = true;
+      el("settingsList").replaceChildren();
+      Object.entries(cfg.doses).forEach(([name, value], index) =>  {
+        const block = document.createElement("div"); block.className = "setting-block"; const row = document.createElement("div"); row.className = "settings-row"; const nameInput = document.createElement("input"); nameInput.className = "settingName"; nameInput.value = name; nameInput.setAttribute("aria-label", "Bezeichnung des Richtwerts"); const input = document.createElement("input"); input.className = "settingValue"; input.type = "number"; input.min = "0"; input.step = "any"; input.value = value ?? ""; input.placeholder = "Dosierung"; input.setAttribute("aria-label", "Richtwert fÃ¼r " + name); const unit = index === 7?"kg": "g"; const label = document.createElement("span"); label.className = "settings-unit"; label.textContent = unit + " / 1000 L"; const way = document.createElement("p"); way.className = "calculation"; const update = () => way.textContent = calculationText(input, unit); input.addEventListener("input", update); update(); row.append(nameInput, input, label); block.append(row, way); el("settingsList").append(block);
+      });
+      el("factorList").replaceChildren();
+      for(const[key, title]of[["rot", "Rotwein"], ["weiss", "WeiÃŸwein / RosÃ©wein"]]) {
+        const block = document.createElement("div");
+        block.className = "setting-block";
+        const row = document.createElement("div");
+        row.className = "settings-row";
+        const label = document.createElement("label");
+        label.textContent = title;
+        label.htmlFor = "factor-" + key;
+        const input = document.createElement("input");
+        input.id = "factor-" + key;
+        input.type = "number";
+        input.min = "0.000001";
+        input.step = "any";
+        input.value = cfg.factors[key];
+        const unit = document.createElement("span");
+        unit.className = "settings-unit";
+        unit.textContent = "Faktor";
+        const way = document.createElement("p");
+        way.className = "calculation";
+        const update = () => way.textContent = factorText(input);
+        input.addEventListener("input", update);
+        update();
+        row.append(label, input, unit);
+        block.append(row, way);
+        el("factorList").append(block);
+      }
+      el("settingsPanel").hidden = false;
+    }
+    el("settingsBtn").addEventListener("click", openSettings);
+    el("closeSettings").addEventListener("click", () =>  {
+      clearTimeout(closeTimer); el("settingsPanel").hidden = true;
+    });
+    el("saveSettings").addEventListener("click", () =>  {
+      try {
+        const names = document.querySelectorAll(".settingName"), values = document.querySelectorAll(".settingValue"), newDoses =  {
+        }; names.forEach((input, i) =>  {
+          const name = input.value.trim(), raw = values[i].value.trim(), value = raw === ""?null: Number(raw); if(!name)throw new Error("Bitte alle Bezeichnungen ausfÃ¼llen."); if(Object.hasOwn(newDoses, name))throw new Error("Bezeichnungen dÃ¼rfen nicht doppelt vorkommen."); if(value !== null && (!Number.isFinite(value) || value < 0))throw new Error("Bitte gÃ¼ltige Dosierungen ab 0 eingeben."); Object.defineProperty(newDoses, name,  {
+            value, enumerable: true, writable: true, configurable: true
+          });
+        }); const factors =  {
+        }; for(const key of["rot", "weiss"]) {
+          const raw = el("factor-" + key).value, value = Number(raw); if(!raw || !Number.isFinite(value) || value <= 0)throw new Error("Bitte beide Faktoren grÃ¶ÃŸer als 0 eingeben."); factors[key] = value;
+        }
+        localStorage.setItem("mostrechnerDosen", JSON.stringify(newDoses)); localStorage.setItem("mostrechnerFaktoren", JSON.stringify(factors)); cfg.doses = newDoses; cfg.factors = factors; el("saveMessage").hidden = false; calc(); closeTimer = setTimeout(() => el("settingsPanel").hidden = true, 1200);
+      }
+      catch(e) {
+        alert("Speichern fehlgeschlagen: " + e.message);
+      }
+    });
+    // Ergebnisansicht ohne Rechenwege.
+    function calc() {
+      const L = Number(el("liters").value), a = Number(el("actual").value), t = Number(el("target").value), err = el("err");
+      err.hidden = true;
+      if(!Number.isFinite(L) || L <= 0) {
+        err.textContent = "Bitte eine Menge grÃ¶ÃŸer als 0 eingeben.";
+        err.hidden = false;
+        el("results").innerHTML = "";
+        return;
+      }
+      const weinart = el("weinart").value;
+      el("weinartField").hidden = el("actual").value === "";
+      let sugar = null;
+      const factor = cfg.factors[weinart];
+      if(a && !weinart) {
+        err.textContent = "Bitte Weinart auswÃ¤hlen.";
+        err.hidden = false;
+      }
+      if(a && t && sugarTable[a] && sugarTable[t] && factor) {
+        const result = (sugarTable[t]-sugarTable[a]) * L * factor / 1000;
+        sugar = result > 0?result: null;
+      }
+      if(a && t && t-a >= 25) {
+        err.textContent = "âš ï¸ Hinweis: Die Differenz betrÃ¤gt 25 Â°Oe oder mehr. Bitte die zulÃ¤ssige Aufbesserungsmenge beachten.";
+        err.hidden = false;
+      }
+      const keys = Object.keys(cfg.doses);
+      const entry = (i, unit) => [keys[i], dose(keys[i], L) == null?"-": fmt(dose(keys[i], L)), unit];
+      el("results").innerHTML = card("Enzyme", [entry(0, "g"), entry(1, "g"), entry(2, "g")]) + card("SchÃ¶nung", [entry(3, "g"), entry(4, "g")]) + card("Hefe / Zucker", [entry(5, "g"), entry(6, ""), entry(7, "kg"), ["Zucker", sugar == null?"-": fmt(sugar, 2), "kg", "sugar"]]) + card("DAB / Annanvital", [entry(8, "g"), entry(9, "g")]);
+    }
+    ["liters", "actual", "target", "weinart"].forEach(id => el(id).addEventListener("input", () =>  {
+      if(id === "actual" && el("actual").value === "")el("weinart").value = ""; calc();
+    }));
+    calc();
+    ladeDaten();
+    if("serviceWorker"in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(console.error));
+    }
+  </script>
 </body>
 </html>
