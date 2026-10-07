@@ -16,6 +16,8 @@
       color:#111;
       background:#f4f4f4;
     }
+    [hidden] {display:none!important;}
+    #most-login label{display:block;margin:12px 0;}
     * {
       box-sizing:border-box;
     }
@@ -157,7 +159,18 @@
   </style>
 </head>
 <body>
-<main class="wrap">
+<section id="most-login" class="wrap">
+  <h1>Mostrechner</h1>
+  <p>Mit deinem Benutzer anmelden</p>
+  <form id="most-login-form" class="card">
+    <label>Benutzername<input name="username" value="Mostrechner" required autocomplete="username"></label>
+    <label>Passwort<input name="password" type="password" required autocomplete="current-password"></label>
+    <p id="most-login-message" role="alert"></p>
+    <button type="submit">Anmelden</button>
+  </form>
+</section>
+<main id="most-app" class="wrap" hidden>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px"><strong>Mostrechner</strong><button id="most-logout" type="button">Abmelden</button></div>
   <h1><img src="./mostrechner-logo.png" alt="" width="48" height="48">Mostrechner</h1>
   <button id="settingsBtn" type="button" style="margin-bottom:12px;font-weight:600;">&#9881;&#65039; Einstellungen</button>
   <section id="settingsPanel" class="card" hidden>
@@ -512,5 +525,7 @@
       window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(console.error));
     }
   </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./anmeldung.js?v=1"></script>
 </body>
 </html>

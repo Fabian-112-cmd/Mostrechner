@@ -1,47 +1,11 @@
-const CACHE_NAME = "mostrechner-v4";
-
-const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./daten.json",
-  "./manifest.json",
-  "./apple-touch-icon.png",
-  "./mostrechner-logo.png"
-];
-
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
-  );
+'use strict';
+const CACHE_NAME='mostrechner-v5-anmeldung';
+const FILES=['./','./index.html','./daten.json','./manifest.json','./mostrechner-logo.png','./anmeldung.js?v=1'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('mostrechner-')&&key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{
+ const url=new URL(event.request.url);
+ // Nur eigene statische Dateien; keine Auth-Anfragen und keine fremden Apps speichern.
+ if(event.request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(self.registration.scope))return;
+ event.respondWith(fetch(event.request).then(response=>{if(response.ok){const clone=response.clone();event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.put(event.request,clone)));}return response;}).catch(()=>caches.match(event.request)));
 });
-
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      )
-    )
-  );
-});
-
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        const clone = response.clone();
-
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, clone);
-        });
-
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
-});
-
