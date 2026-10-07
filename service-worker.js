@@ -1,6 +1,6 @@
 'use strict';
-const CACHE_NAME='mostrechner-v6-anmeldung-design';
-const FILES=['./','./index.html','./daten.json','./manifest.json','./mostrechner-logo.png','./anmeldung.js?v=1'];
+const CACHE_NAME='mostrechner-v8-ein-passwort';
+const FILES=['./','./index.html','./daten.json','./manifest.json','./mostrechner-logo.png','./anmeldung.js?v=3'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('mostrechner-')&&key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{

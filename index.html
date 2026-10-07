@@ -173,6 +173,16 @@
     #most-login input:focus-visible,#most-login button:focus-visible{outline:3px solid #bda1d1;outline-offset:3px}
     #most-login-message{margin:0;line-height:1.5;overflow-wrap:anywhere;color:#a12b2b}
     @media(max-width:600px){#most-login{padding:20px 16px 40px}#most-login h1{font-size:26px}#most-login .card{padding:16px}}
+    .most-account-buttons{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+    .most-password-dialog{border:0;border-radius:16px;padding:24px;width:min(420px,calc(100vw - 32px));box-sizing:border-box;max-height:90vh;overflow:auto}
+    .most-password-dialog::backdrop{background:#0007}
+    .most-password-dialog h2{margin:0 0 16px;font-size:24px}
+    .most-password-dialog label{display:grid;gap:7px;margin:14px 0;font-size:16px}
+    .most-password-dialog input{width:100%;min-width:0;padding:13px;border:1px solid #e6dfea;border-radius:10px;font:inherit;box-sizing:border-box}
+    .most-password-dialog .actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+    .most-password-dialog .primary{background:#643985;border-color:#643985;color:white;font-weight:700}
+    .most-password-dialog .error{color:#a12b2b;overflow-wrap:anywhere}
+    .most-password-dialog p{font-size:14px;line-height:1.5}
   </style>
 </head>
 <body>
@@ -191,7 +201,7 @@
   </div>
 </section>
 <main id="most-app" class="wrap" hidden>
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px"><strong>Mostrechner</strong><button id="most-logout" type="button">Abmelden</button></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px"><span></span><div class="most-account-buttons"><button id="most-change-login" type="button">Passwort ändern</button><button id="most-logout" type="button">Abmelden</button></div></div>
   <h1><img src="./mostrechner-logo.png" alt="" width="48" height="48">Mostrechner</h1>
   <button id="settingsBtn" type="button" style="margin-bottom:12px;font-weight:600;">&#9881;&#65039; Einstellungen</button>
   <section id="settingsPanel" class="card" hidden>
@@ -422,11 +432,8 @@
         }
       }
     });
-    function openSettings() {
-      if(prompt("Passwort f\u{fc}r Einstellungen:") !== "1234") {
-        alert("Falsches Passwort!");
-        return;
-      }
+    async function openSettings() {
+      if (!await mostUnlockSettings()) return;
       clearTimeout(closeTimer);
       el("sugarTablePanel").hidden = true;
       el("tableBtn").setAttribute("aria-expanded", "false");
@@ -547,6 +554,6 @@
     }
   </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./anmeldung.js?v=1"></script>
+<script src="./anmeldung.js?v=3"></script>
 </body>
 </html>
