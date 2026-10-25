@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#f3efe9">
+  <meta name="theme-color" content="#f4f4f4">
   <title>Mostrechner</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/png" href="./mostrechner-logo.png">
@@ -184,45 +184,6 @@
     .most-password-dialog .error{color:#a12b2b;overflow-wrap:anywhere}
     .most-password-dialog p{font-size:14px;line-height:1.5}
   </style>
-<style id="weingut-unified-design">
-
-/* Einheitlicher Weingut-Stil: Designvariante 2, 18.10.2026 */
-:root{--purple:#634078;--ink:#302838;--muted:#756a78;--line:#ded7d0;--gold:#ae8e4d;background:#f3efe9;color:#302838;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{background:#f3efe9;color:#302838;-webkit-font-smoothing:antialiased}
-h1{color:#41294d;font-size:clamp(22px,4.8vw,27px);font-weight:750;letter-spacing:-.65px;line-height:1.2}
-h2{color:#41294d;letter-spacing:-.55px;font-weight:730}h3{color:#3c2d43;letter-spacing:-.25px;font-weight:700}
-header{position:relative;background:transparent;color:#302838;padding-bottom:20px;margin-bottom:20px}
-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,#613b7970,#ae8e4d9c 55%,#ae8e4d10)}
-header h1{margin-top:0;margin-bottom:0}header img,h1 img{border-radius:13px;object-fit:contain;flex-shrink:0;box-shadow:0 4px 12px #42214c1a;border:1px solid #ffffff60}
-button,.btn{background:#fffaf3;color:#49354f;border-color:#dfd4cf;box-shadow:0 1px 2px #4c344008;transition:background .15s ease,border-color .15s ease}
-button:not(:disabled):hover,.btn:hover{background:#f0e6ee;border-color:#cdb9d0}
-.primary,.btn.primary{background:#634078;color:#fffaf2;border-color:#634078;box-shadow:none}
-.primary:not(:disabled):hover,.btn.primary:hover{background:#735087;color:#fffaf2;border-color:#735087}
-.card,.customer{background:#faf8f4;border:1px solid #ded7d0;box-shadow:0 2px 8px #382d2504;border-radius:15px}
-.menu{background:#faf8f4;border-color:#ded7d0;box-shadow:0 2px 8px #382d2504;border-radius:13px;color:#392f3f}
-.menu:not(:disabled):hover{background:#f1eaf2;border-color:#c9b9cf;box-shadow:0 3px 12px #51365d09}
-input,select,textarea{background:#fffdf8;color:#302838;border-color:#ddcfc9}
-input::placeholder,textarea::placeholder{color:#9a8c94;opacity:1}input:focus,select:focus,textarea:focus{border-color:#9e7aaf;outline:2px solid #b2955a40;outline-offset:1px}
-button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #b2955a;outline-offset:3px}
-.pill{background:#ece5ef;color:#654074;border-radius:6px}.pill.done{background:#e4eadd;color:#28633f}
-.tabs button[aria-selected="true"],.tabs button[aria-selected="true"]:hover{background:#634078;color:#fffaf2;border-color:#634078}
-dialog{background:#fffcf7;color:#302838;border:1px solid #dfd2ce;border-radius:20px;box-shadow:0 25px 90px #35233e35}
-dialog::backdrop{background:#33213c69;backdrop-filter:blur(3px)}
-.danger,.error{color:#a83232}.muted,.note,.unit{color:#756a78}
-@media(prefers-reduced-motion:reduce){button,.btn{transition:none}}
-
-body:has(#most-login:not([hidden])){background:#f3efe9;color:#302838}
-#most-login{background:transparent;color:#302838}#most-login .card{background:#faf8f4;border-color:#ded7d0;box-shadow:0 2px 8px #382d2504}
-#most-login h1{color:#41294d;font-size:clamp(22px,4.8vw,27px);letter-spacing:-.65px}
-#most-login input,.field input,.field select,.settings-row input,.most-password-dialog input{background:#fffdf8;color:#302838;border-color:#ddcfc9}
-#most-login .most-login-primary,#saveSettings,.most-password-dialog .primary{background:#634078;color:#fffaf2;border-color:#634078}
-#most-login .most-login-primary:not(:disabled):hover,#saveSettings:not(:disabled):hover,.most-password-dialog .primary:not(:disabled):hover{background:#735087;color:#fffaf2;border-color:#735087}
-#most-app>h1{position:relative;padding-bottom:20px;margin-bottom:18px}
-#most-app>h1::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,#613b7970,#ae8e4d9c 55%,#ae8e4d10)}
-.row,.sugar-table th,.sugar-table td{border-color:#e5dcd3}.sugar-table th{background:#eee7de;color:#594b3e}
-.calculation{background:#eee8e1;color:#756a78}.sugar{color:#634078}.most-password-dialog{background:#fffcf7;border:1px solid #dfd2ce}
-
-</style>
 </head>
 <body>
 <section id="most-login" class="wrap">
@@ -232,7 +193,7 @@ body:has(#most-login:not([hidden])){background:#f3efe9;color:#302838}
   <div class="card">
     <h2>Anmelden</h2>
     <form id="most-login-form" class="most-login-form">
-      <label for="most-username">Benutzername<input id="most-username" name="username" type="text" placeholder="Mostrechner" required autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+      <label for="most-username">Benutzername<input id="most-username" name="username" type="text" placeholder="Dein Benutzername" required autocomplete="username" autocapitalize="none" spellcheck="false"></label>
       <label for="most-password">Passwort<input id="most-password" name="password" type="password" required autocomplete="current-password"></label>
       <button type="submit" class="most-login-primary">Anmelden</button>
       <p id="most-login-message" role="alert"></p>
@@ -593,6 +554,6 @@ body:has(#most-login:not([hidden])){background:#f3efe9;color:#302838}
     }
   </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./anmeldung.js?v=3"></script>
+<script src="./anmeldung.js?v=zentral1"></script>
 </body>
 </html>
