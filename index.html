@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f4f4f4">
   <title>Mostrechner</title>
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="manifest.json?v=install1">
   <link rel="icon" type="image/png" href="./mostrechner-logo.png">
   <link rel="apple-touch-icon" href="./mostrechner-logo.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -184,12 +184,12 @@
     .most-password-dialog .error{color:#a12b2b;overflow-wrap:anywhere}
     .most-password-dialog p{font-size:14px;line-height:1.5}
   </style>
-</head>
+<script src="app-installation.js?v=1" data-app-name="Mostrechner" defer></script>
+<script src="app-home.js?v=design1" data-app-home="mostrechner" defer></script>
+<link rel="stylesheet" href="weingut-design.css?v=1"></head>
 <body>
 <section id="most-login" class="wrap">
-  <header class="most-login-header">
-    <h1><img src="./mostrechner-logo.png" alt="" width="48" height="48">Mostrechner</h1>
-  </header>
+  <header class="winery-header"><div class="winery-brand"><div class="winery-mark"><img src="logo-pau-vorlage.svg" alt="Pau · vorläufiges Logo"><span>Pau</span></div><div class="winery-title"><h1>Weingut Pau &amp; Maya BIO</h1><p>Mostrechner</p></div><button type="button" class="winery-mark maya-home" aria-label="Zur Berechnung"><img src="logo-maya-vorlage.svg" alt="Maya · vorläufiges Logo"><span>Maya</span></button></div></header>
   <div class="card">
     <h2>Anmelden</h2>
     <form id="most-login-form" class="most-login-form">
@@ -201,9 +201,7 @@
   </div>
 </section>
 <main id="most-app" class="wrap" hidden>
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px"><span></span><div class="most-account-buttons"><button id="most-change-login" type="button">Passwort ändern</button><button id="most-logout" type="button">Abmelden</button></div></div>
-  <h1><img src="./mostrechner-logo.png" alt="" width="48" height="48">Mostrechner</h1>
-  <button id="settingsBtn" type="button" style="margin-bottom:12px;font-weight:600;">&#9881;&#65039; Einstellungen</button>
+  <header class="winery-header"><div class="winery-brand"><div class="winery-mark"><img src="logo-pau-vorlage.svg" alt="Pau · vorläufiges Logo"><span>Pau</span></div><div class="winery-title"><h1>Weingut Pau &amp; Maya BIO</h1><p>Mostrechner</p></div><button type="button" class="winery-mark maya-home" aria-label="Zur Berechnung"><img src="logo-maya-vorlage.svg" alt="Maya · vorläufiges Logo"><span>Maya</span></button></div><details class="most-menu"><summary aria-label="Menü öffnen">☰</summary><div class="most-menu-panel"><button id="settingsBtn" type="button">Einstellungen</button><div class="most-account-buttons"><button id="most-change-login" type="button">Passwort ändern</button><button id="most-logout" type="button">Abmelden</button></div></div></details></header>
   <section id="settingsPanel" class="card" hidden>
     <h2>&#9881;&#65039; Einstellungen</h2>
     <div id="settingsList"></div>
@@ -226,7 +224,7 @@
     </section>
     <p id="saveMessage" role="status" hidden>&#9989; Einstellungen gespeichert</p>
   </section>
-  <section class="card">
+  <section class="card most-entry">
     <h2 style="margin-bottom:22px;font-size:22px;">&#127815; Eingabe</h2>
     <div class="field">
       <label for="liters">Menge</label>
@@ -555,5 +553,5 @@
   </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./anmeldung.js?v=zentral1"></script>
-</body>
+<script>(()=>{document.querySelectorAll('.maya-home').forEach(b=>b.onclick=()=>{const home=document.querySelector('#most-app .app-home-logo-v1');if(home)home.click();else window.scrollTo({top:0,behavior:'smooth'});});const menu=document.querySelector('.most-menu');menu.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>menu.open=false));document.addEventListener('click',e=>{if(!menu.contains(e.target))menu.open=false});document.addEventListener('keydown',e=>{if(e.key==='Escape')menu.open=false});})();</script></body>
 </html>
